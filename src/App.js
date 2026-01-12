@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Gift, Trophy, ShoppingCart, User, LogOut, Globe, Menu, X, Circle, Plus, Check } from 'lucide-react';
 import LoginPage from './components/LoginPage';
 import GiftBoxPopup from './components/GiftBoxPopup';
-import KYCVerification from './components/KYCVerification';
 import { TermsAndConditions } from './components/TermsAndConditions';
-import { authService, giveawayService, entryService } from './services/backend';
+import { MyEntries } from './components/MyEntries';
+import { Footer } from './components/Footer';
+import { FAQ } from './components/FAQ';
+import { IDVerification } from './components/IDVerification';
+import { ToastContainer } from './components/Toast';
+import { authService, entryService } from './services/backend';
 
 // Tesla Cars Data
 const TESLA_CARS = [
@@ -50,6 +54,90 @@ const TESLA_CARS = [
   }
 ];
 
+// Giveaway Items Data
+const GIVEAWAY_ITEMS = [
+  {
+    id: '1',
+    name: 'iPhone 15 Pro Max',
+    description: 'Latest Apple flagship smartphone',
+    image: '/images/iphone15.jpg',
+    value: 1299,
+    totalParticipants: 2543,
+    drawDate: '2026-02-15',
+    status: 'active'
+  },
+  {
+    id: '2',
+    name: 'MacBook Pro 16"',
+    description: 'M3 Max processor with 48GB RAM',
+    image: '/images/macbook16.jpg',
+    value: 3499,
+    totalParticipants: 1876,
+    drawDate: '2026-02-20',
+    status: 'active'
+  },
+  {
+    id: '3',
+    name: 'Apple Watch Ultra',
+    description: 'Premium smartwatch with action button',
+    image: '/images/AppleWatch.jpg',
+    value: 799,
+    totalParticipants: 5234,
+    drawDate: '2026-02-10',
+    status: 'active'
+  },
+  {
+    id: '4',
+    name: 'Sony WH-1000XM5 Headphones',
+    description: 'Industry-leading noise cancellation',
+    image: '/images/sonyheadphones.jpg',
+    value: 399,
+    totalParticipants: 8932,
+    drawDate: '2026-02-12',
+    status: 'active'
+  },
+  {
+    id: '5',
+    name: 'DJI Air 3S Drone',
+    description: '4K camera drone with 46-min flight time',
+    image: '/images/djidrone.jpg',
+    value: 1299,
+    totalParticipants: 1243,
+    drawDate: '2026-02-25',
+    status: 'active'
+  },
+  {
+    id: '6',
+    name: 'GoPro Hero 12',
+    description: 'Professional action camera',
+    image: '/images/goprohero12.jpg',
+    value: 499,
+    totalParticipants: 3421,
+    drawDate: '2026-03-01',
+    status: 'active'
+  },
+  {
+    id: '7',
+    name: 'Xbox Series X',
+    description: 'Next-gen gaming console',
+    image: '/images/xboxseriesx.jpg',
+    value: 499,
+    totalParticipants: 4156,
+    drawDate: '2026-03-05',
+    status: 'active'
+  },
+  {
+    id: '8',
+    name: 'Nintendo Switch OLED',
+    description: 'Premium gaming handheld console',
+    image: '/images/nintendoswitcholed.jpg',
+    value: 349,
+    totalParticipants: 5890,
+    drawDate: '2026-03-10',
+    status: 'active'
+  }
+];
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
@@ -59,21 +147,34 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showGiftBox, setShowGiftBox] = useState(false);
   const [featuredGiveaway, setFeaturedGiveaway] = useState(null);
+  const [toasts, setToasts] = useState([]);
+
+  // Toast notification function
+  const addToast = (message, type = 'info', duration = 3000) => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type, duration }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
 
   // Initialize app
   useEffect(() => {
+    authService.initialize();
+    setGiveaways(GIVEAWAY_ITEMS);
+    setFeaturedGiveaway(GIVEAWAY_ITEMS[0] || null);
+    setShowGiftBox(true);
     const user = authService.getCurrentUser();
     if (user) {
       setCurrentUser(user);
-      loadGiveaways();
     }
   }, []);
 
   // Load giveaways and user entries
   const loadGiveaways = () => {
-    const items = giveawayService.getAllGiveaways();
-    setGiveaways(items);
-    setFeaturedGiveaway(items[0] || null);
+    setGiveaways(GIVEAWAY_ITEMS);
+    setFeaturedGiveaway(GIVEAWAY_ITEMS[0] || null);
     
     const user = authService.getCurrentUser();
     if (user) {
@@ -86,6 +187,7 @@ function App() {
   const handleLogin = (user) => {
     setCurrentUser(user);
     loadGiveaways();
+    addToast(`Welcome back, ${user.fullName}!`, 'success');
   };
 
   // Handle logout
@@ -94,6 +196,7 @@ function App() {
     setCurrentUser(null);
     setUserEntries([]);
     setGiveaways([]);
+    addToast('Successfully logged out', 'success');
   };
 
   // Enter giveaway
@@ -106,7 +209,12 @@ function App() {
         // Update current user data
         const updatedUser = authService.getCurrentUser();
         setCurrentUser(updatedUser);
+        addToast('Successfully entered giveaway!', 'success');
+      } else {
+        addToast('Already entered this giveaway', 'warning');
       }
+    } catch (error) {
+      addToast('Failed to enter giveaway', 'error');
     } finally {
       setLoading(false);
     }
@@ -167,7 +275,7 @@ function App() {
       </header>
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-14 sm:top-16 bottom-0 w-56 sm:w-64 bg-[#0a0a0a] border-r border-white/10 transition-transform duration-300 ease-in-out z-40 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-14 sm:top-16 bottom-0 w-56 sm:w-64 bg-[#0a0a0a] border-r border-white/10 transition-all duration-300 ease-in-out z-40 ${sidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
         <nav className="flex flex-col h-full py-4 sm:py-6">
           <div className="flex-1 px-2 sm:px-3 space-y-1">
             {menuItems.map(item => (
@@ -343,6 +451,11 @@ function App() {
                   })}
                 </div>
               </div>
+
+              {/* FAQ Section */}
+              <div className="mt-12">
+                <FAQ />
+              </div>
             </div>
           )}
 
@@ -433,6 +546,11 @@ function App() {
                   );
                 })}
               </div>
+
+              {/* FAQ Section */}
+              <div className="mt-12">
+                <FAQ />
+              </div>
             </div>
           )}
 
@@ -501,69 +619,26 @@ function App() {
 
           {/* My Entries View */}
           {activeView === 'entries' && (
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold">My Entries</h1>
-                <p className="text-white/60">Track all your giveaway entries</p>
-              </div>
-
-              {userEntries.length === 0 ? (
-                <div className="flex items-center justify-center h-96">
-                  <div className="text-center">
-                    <Gift size={64} className="mx-auto mb-4 text-white/20" />
-                    <h2 className="text-2xl font-bold mb-2">No Entries Yet</h2>
-                    <p className="text-white/60 mb-6">Start entering giveaways to see them here</p>
-                    <button 
-                      onClick={() => setActiveView('giveaways')}
-                      className="bg-white text-black font-medium py-3 px-8 rounded-full hover:bg-white/90 transition-all"
-                    >
-                      Browse Giveaways
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {userEntries.map((entry) => {
-                    const giveaway = giveaways.find(g => g.id === entry.giveawayId);
-                    return giveaway ? (
-                      <div key={entry.id} className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="text-lg font-bold">{giveaway.name}</h3>
-                            <p className="text-sm text-white/60">{giveaway.description}</p>
-                          </div>
-                          <Gift size={24} className="text-white/40 flex-shrink-0" />
-                        </div>
-                        <div className="space-y-2 mb-4 pb-4 border-b border-white/10">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-white/60">Your Entries</span>
-                            <span className="font-medium">{entry.entryCount}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-white/60">Total Participants</span>
-                            <span className="font-medium">{giveaway.totalParticipants.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-white/60">Your Chance</span>
-                            <span className="font-medium text-green-400">{((entry.entryCount / giveaway.totalParticipants) * 100).toFixed(3)}%</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-white/40">Draw: {new Date(giveaway.drawDate).toLocaleDateString()}</p>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              )}
-            </div>
+            <MyEntries currentUser={currentUser} userEntries={userEntries} giveaways={giveaways} />
           )}
 
           {/* Account View */}
           {activeView === 'account' && (
-            <div className="space-y-6 max-w-2xl">
+            <div className="space-y-6 max-w-4xl">
               <div>
                 <h1 className="text-3xl font-bold">Account Settings</h1>
                 <p className="text-white/60">Manage your profile and preferences</p>
               </div>
+
+              {/* ID.me Verification Section */}
+              <IDVerification 
+                user={currentUser} 
+                onVerify={() => {
+                  const updatedUser = authService.getCurrentUser();
+                  setCurrentUser({...updatedUser, kycVerified: true});
+                  addToast('Identity verified successfully!', 'success');
+                }}
+              />
 
               {/* Profile Section */}
               <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10">
@@ -589,9 +664,6 @@ function App() {
                   </div>
                 </div>
               </div>
-
-              {/* Verification Section */}
-              <KYCVerification user={currentUser} onUpdateUser={setCurrentUser} onViewTerms={() => setActiveView('terms')} />
 
               {/* Statistics */}
               <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10">
@@ -623,7 +695,13 @@ function App() {
           )}
 
         </div>
+
+        {/* Footer */}
+        <Footer />
       </main>
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       {/* Gift Box Popup */}
       {showGiftBox && featuredGiveaway && (

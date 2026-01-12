@@ -35,7 +35,7 @@ export function GiftBoxPopup({ giveaway, onNavigateToGiveaways, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-24 pb-24">
-      <div className="bg-[#0a0a0a] rounded-3xl p-6 border border-white/20 max-w-sm w-full relative">
+      <div className="bg-[#0a0a0a] rounded-3xl p-6 border border-white/20 max-w-xs w-full relative">
         {/* Close button */}
         <button
           onClick={onClose}
