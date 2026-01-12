@@ -1,0 +1,12 @@
+# Vercel build cache and dependencies
+.git
+.gitignore
+README.md
+node_modules
+npm-debug.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+build-log.txt
+IMAGE_URLS_VERIFICATION.md
