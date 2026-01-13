@@ -120,19 +120,61 @@ export function KYCVerification({ user, onUpdateUser, onViewTerms }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Terms & Conditions Notice */}
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4">
-          <p className="text-sm text-white/80">
-            <span className="font-bold text-blue-400">To proceed,</span> please confirm your acceptance by providing the required information below. All submissions are subject to our Terms & Conditions.
+        {/* Main Acceptance Notice */}
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-6">
+          <p className="text-white/80 leading-relaxed mb-4">
+            To proceed, please confirm your acceptance by replying "I Accept" and providing the required information. All submissions are subject to our <span className="font-bold text-blue-400">Terms & Conditions.</span>
           </p>
         </div>
 
-        {/* Personal Information */}
+        {/* Required Information List */}
         <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10">
-          <h4 className="font-bold mb-4 flex items-center gap-2">
-            <FileText size={20} />
-            Required Information
-          </h4>
+          <h4 className="font-bold mb-4 text-white">Required Information:</h4>
+          <ul className="space-y-2 text-white/70 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Full Name</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Full Delivery Address</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Country & State</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Age</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Gender</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Occupation</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Active Mobile/Text Number</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-white/40 mt-1">–</span>
+              <span>Active Email Address</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Community Message */}
+        <div className="bg-white/5 rounded-2xl p-6 text-center border border-white/10">
+          <p className="text-white/70 leading-relaxed">
+            Thank you for being part of our community and for celebrating innovation with us!
+          </p>
+        </div>
+
+        {/* Form Fields */}
+        <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10">
           <div className="space-y-4">
             <div>
               <label className="text-sm text-white/60 block mb-2">Full Name *</label>
@@ -287,13 +329,6 @@ export function KYCVerification({ user, onUpdateUser, onViewTerms }) {
               . I understand that all submissions are subject to the terms provided.
             </span>
           </label>
-        </div>
-
-        {/* Closing Message */}
-        <div className="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-          <p className="text-sm text-white/60">
-            Thank you for being part of our community and for celebrating innovation with us!
-          </p>
         </div>
 
         {/* Submit Button */}

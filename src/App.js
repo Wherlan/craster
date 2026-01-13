@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Gift, Trophy, ShoppingCart, User, LogOut, Globe, Menu, X, Circle, Plus, Check } from 'lucide-react';
+import { LayoutDashboard, Gift, Trophy, ShoppingCart, User, LogOut, Globe, Menu, X, Circle, Plus, Check, Moon, Sun } from 'lucide-react';
 import LoginPage from './components/LoginPage';
 import GiftBoxPopup from './components/GiftBoxPopup';
 import { TermsAndConditions } from './components/TermsAndConditions';
@@ -7,6 +7,8 @@ import { MyEntries } from './components/MyEntries';
 import { Footer } from './components/Footer';
 import { FAQ } from './components/FAQ';
 import { IDVerification } from './components/IDVerification';
+import { KYCVerification } from './components/KYCVerification';
+import { TeslaPurchaseModal } from './components/TeslaPurchaseModal';
 import { ToastContainer } from './components/Toast';
 import { authService, entryService } from './services/backend';
 
@@ -147,6 +149,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showGiftBox, setShowGiftBox] = useState(false);
   const [featuredGiveaway, setFeaturedGiveaway] = useState(null);
+  const [darkMode, setDarkMode] = useState(true);
+  const [selectedTeslaCar, setSelectedTeslaCar] = useState(null);
   const [toasts, setToasts] = useState([]);
 
   // Toast notification function
@@ -235,9 +239,17 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white antialiased">
+    <div className={`min-h-screen antialiased transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-black text-white' 
+        : 'bg-white text-black'
+    }`}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+        darkMode
+          ? 'bg-black/80 border-b border-white/10'
+          : 'bg-white/80 border-b border-black/10'
+      } backdrop-blur-md`}>
         <div className="flex items-center justify-between px-4 sm:px-6 h-14 sm:h-16">
           <div className="flex items-center gap-3 sm:gap-4">
             <button 
@@ -251,13 +263,17 @@ function App() {
             </svg>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#0a0a0a] border border-white/10">
+            <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-colors duration-300 border ${
+            darkMode
+              ? 'bg-[#0a0a0a] border-white/10'
+              : 'bg-gray-100 border-black/10'
+          }`}>
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black font-bold text-xs sm:text-sm flex-shrink-0">
                 {currentUser.fullName.charAt(0).toUpperCase()}
               </div>
               <div className="hidden sm:block min-w-0">
                 <div className="text-xs sm:text-sm font-medium truncate">{currentUser.fullName}</div>
-                <div className="text-xs text-green-400 flex items-center gap-1">
+                <div className={`text-xs flex items-center gap-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
                   <Circle size={5} fill="currentColor" />
                   Active
                 </div>
@@ -265,7 +281,11 @@ function App() {
             </div>
             <button 
               onClick={handleLogout}
-              className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-full transition active:scale-95"
+              className={`p-2 transition-colors duration-300 ${
+                darkMode
+                  ? 'text-white/60 hover:text-white hover:bg-white/5'
+                  : 'text-black/60 hover:text-black hover:bg-black/5'
+              } rounded-full active:scale-95`}
               title="Logout"
             >
               <LogOut size={20} />
@@ -275,7 +295,11 @@ function App() {
       </header>
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-14 sm:top-16 bottom-0 w-56 sm:w-64 bg-[#0a0a0a] border-r border-white/10 transition-all duration-300 ease-in-out z-40 ${sidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
+      <aside className={`fixed left-0 top-14 sm:top-16 bottom-0 w-56 sm:w-64 transition-all duration-300 ease-in-out z-40 border-r ${
+        darkMode
+          ? 'bg-[#0a0a0a] border-white/10'
+          : 'bg-gray-50 border-black/10'
+      } ${sidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
         <nav className="flex flex-col h-full py-4 sm:py-6">
           <div className="flex-1 px-2 sm:px-3 space-y-1">
             {menuItems.map(item => (
@@ -290,8 +314,12 @@ function App() {
                 }}
                 className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all text-sm sm:text-base ${
                   activeView === item.id 
-                    ? 'bg-white text-black font-semibold' 
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                    ? darkMode
+                      ? 'bg-white text-black font-semibold'
+                      : 'bg-black text-white font-semibold'
+                    : darkMode
+                    ? 'text-white/60 hover:text-white hover:bg-white/5'
+                    : 'text-black/60 hover:text-black hover:bg-black/5'
                 }`}
               >
                 {activeView === item.id && <div className="absolute left-0 w-0.5 h-8 bg-white rounded-r" />}
@@ -300,8 +328,27 @@ function App() {
               </button>
             ))}
           </div>
-          <div className="px-2 sm:px-3 space-y-1 sm:space-y-2 border-t border-white/10 pt-3 sm:pt-4">
-            <button className="w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all text-sm sm:text-base">
+          <div className={`px-2 sm:px-3 space-y-1 sm:space-y-2 transition-colors duration-300 ${
+            darkMode
+              ? 'border-t border-white/10 pt-3 sm:pt-4'
+              : 'border-t border-black/10 pt-3 sm:pt-4'
+          }`}>
+            <button 
+              onClick={() => setDarkMode(!darkMode)}
+              className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all text-sm sm:text-base ${
+                darkMode
+                  ? 'text-white/60 hover:text-white hover:bg-white/5'
+                  : 'text-black/60 hover:text-black hover:bg-black/5'
+              }`}
+            >
+              {darkMode ? <Sun size={18} className="sm:size-[20px]" /> : <Moon size={18} className="sm:size-[20px]" />}
+              <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+            <button className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all text-sm sm:text-base ${
+              darkMode
+                ? 'text-white/60 hover:text-white hover:bg-white/5'
+                : 'text-black/60 hover:text-black hover:bg-black/5'
+            }`}>
               <Globe size={18} className="sm:size-[20px]" />
               <span>Language</span>
             </button>
@@ -357,7 +404,7 @@ function App() {
                 <h2 className="text-2xl font-bold mb-4">Featured Vehicles</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {TESLA_CARS.map((car, idx) => (
-                    <div key={idx} className="bg-gradient-to-b from-white/5 to-transparent rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all group cursor-pointer">
+                    <div key={idx} className="bg-gradient-to-b from-white/5 to-transparent rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all group">
                       <div className="h-40 bg-gradient-to-br from-white/10 to-transparent overflow-hidden relative">
                         <img 
                           src={car.image} 
@@ -382,7 +429,16 @@ function App() {
                             <span className="font-medium">{car.topSpeed}</span>
                           </div>
                         </div>
-                        <p className="text-green-400 font-bold text-sm">{car.price}</p>
+                        <div className="flex flex-col gap-2">
+                          <p className="text-green-400 font-bold text-sm">{car.price}</p>
+                          <button
+                            onClick={() => setSelectedTeslaCar(car)}
+                            className="w-full bg-white text-black font-bold py-2 rounded-lg hover:bg-white/90 transition-all text-sm flex items-center justify-center gap-2"
+                          >
+                            <ShoppingCart size={16} />
+                            Purchase
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -630,6 +686,15 @@ function App() {
                 <p className="text-white/60">Manage your profile and preferences</p>
               </div>
 
+              {/* KYC Verification Section */}
+              {!currentUser.kycVerified && (
+                <KYCVerification 
+                  user={currentUser} 
+                  onUpdateUser={(user) => setCurrentUser(user)}
+                  onViewTerms={() => setActiveView('terms')}
+                />
+              )}
+
               {/* ID.me Verification Section */}
               <IDVerification 
                 user={currentUser} 
@@ -715,6 +780,14 @@ function App() {
             }
           }}
           onClose={() => setShowGiftBox(false)}
+        />
+      )}
+
+      {/* Tesla Purchase Modal */}
+      {selectedTeslaCar && (
+        <TeslaPurchaseModal 
+          car={selectedTeslaCar}
+          onClose={() => setSelectedTeslaCar(null)}
         />
       )}
     </div>
